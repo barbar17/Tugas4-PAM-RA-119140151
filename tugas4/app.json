@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "tugas4",
-    "slug": "tugas4",
+    "name": "Music player",
+    "slug": "MPA",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/favicon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -23,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.barbar17.MPA"
     },
     "web": {
       "favicon": "./assets/favicon.png"
