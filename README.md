@@ -5,7 +5,7 @@ Kelas: PAM RA
 # APLIKASI MUSIC PLAYER
 Aplikasi ini merupakan aplikasi music player dimana plikasi dapat mengambil file audio local menggunakan api expo-media-library dari expo yang kemudian dapat dimainkan menggunakan api expo-va. Terdapat tiga Screen pada aplikasi yaitu screen list lagu, screen audio player, dan screen playlist.<br>
 ## Aplikasi Dapat Didownload Pada Link Dibawah Ini
-[RA-Akbar Maulana-119140151-Tugas Individu 4](https://drive.google.com/file/d/1jzGBDIs_O410EnV2DGw1JQvcg1hHWzZI/view?usp=sharing)
+<p>LINK:<p>[RA-Akbar Maulana-119140151-Tugas Individu 4.apk](https://drive.google.com/file/d/1jzGBDIs_O410EnV2DGw1JQvcg1hHWzZI/view?usp=sharing)
 
 # Dafter Package yang digunakan
     "@react-navigation/bottom-tabs": "^6.3.1"
