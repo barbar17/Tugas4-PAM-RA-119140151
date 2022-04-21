@@ -19,3 +19,9 @@ Aplikasi ini merupakan aplikasi music player dimana plikasi dapat mengambil file
     "react-native-web": "0.17.1"
     "recyclerlistview": "^3.0.5"
     "expo-av": "~10.2.0"
+# Cara Menginstall Aplikasi
+    1. Download Aplikasi
+    2. Cari Aplikasi yang telah didownload
+    3. Tekan Aplikasi lalu tekan pasang
+    4. Tunggu hingga proses pemasangan selesai
+    5. Setelah itu buka aplikasi dan berikan izin aplikasi untuk membaca media
