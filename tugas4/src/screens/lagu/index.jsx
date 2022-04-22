@@ -38,6 +38,15 @@ export class ListLagu extends Component {
         }
     );
 
+    onPlaybackStatusUpdate = (playbackStatus) => {
+        if (playbackStatus.isLoaded && playbackStatus.isPlaying) {
+            this.context.updateState(this.context, {
+                playbackPosition: playbackStatus.positionMillis,
+                playbackDuration: playbackStatus.durationMillis,
+            })
+        }
+    };
+
     handleAudioPress = async audio => {
         const { sound, playback, currentAudio, updateState, audioFile } = this.context;
 
@@ -45,13 +54,14 @@ export class ListLagu extends Component {
             const playback = new Audio.Sound();
             const status = await play(playback, audio.uri);
             const index = audioFile.indexOf(audio)
-            return updateState(this.context, {
+            updateState(this.context, {
                 currentAudio: audio,
                 playback: playback,
                 sound: status,
                 isPlaying: true,
                 currentAudioIndex: index
-            })
+            });
+            return playback.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate)
         }
 
         if (sound.isLoaded && sound.isPlaying && currentAudio.id === audio.id) {

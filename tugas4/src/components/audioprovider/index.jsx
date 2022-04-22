@@ -18,7 +18,10 @@ export class AudioProvider extends Component {
             currentAudio: {},
             isPlaying: false,
             currentAudioIndex: null,
-        }
+            playbackPosition: null,
+            playbackDuration: null,
+        };
+        this.totalAudioCount = 0
     }
 
     permissionAllert = () => {
@@ -39,6 +42,8 @@ export class AudioProvider extends Component {
             mediaType: 'audio',
             first: media.totalCount
         });
+
+        this.totalAudioCount = media.totalCount
 
         this.setState({
             ...this.state,
@@ -92,7 +97,9 @@ export class AudioProvider extends Component {
             sound,
             currentAudio,
             isPlaying,
-            currentAudioIndex
+            currentAudioIndex,
+            playbackPosition,
+            playbackDuration
         } = this.state
         if (permissionError) return (
             <View style={styles.container}>
@@ -113,7 +120,10 @@ export class AudioProvider extends Component {
                 currentAudio,
                 isPlaying,
                 currentAudioIndex,
-                updateState: this.updateState
+                updateState: this.updateState,
+                totalAudioCount: this.totalAudioCount,
+                playbackPosition,
+                playbackDuration
             }}>
                 {this.props.children}
             </AudioContext.Provider>

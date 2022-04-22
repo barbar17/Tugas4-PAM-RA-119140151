@@ -1,22 +1,34 @@
 import React from 'react';
-import { View } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-const PlayerButton = ({ onPress, iconType, size = 40, color = '#303d49', otherProps }) => {
-    const getIconName = (name) => {
+const PlayerButton = (props) => {
+    const {
+        onPress,
+        iconType,
+        size = 35,
+        color = '#303d49',
+    } = props;
+
+    const getIconName = (type) => {
         switch (type) {
             case 'PLAY':
-                return 'pausecircle';
+                return 'pause';
             case 'PAUSE':
                 return 'play';
             case 'NEXT':
-                return 'stepforward';
+                return 'step-forward';
             case 'PREV':
-                return 'stepbackward';
+                return 'step-backward';
         }
     };
     return (
-        <AntDesign onPress={onPress} name={getIconName(iconType)} size={size} color={color} {...otherProps} />
+        <FontAwesome5
+            {...props}
+            onPress={onPress}
+            name={getIconName(iconType)}
+            size={size}
+            color={color}
+        />
     );
 };
 
