@@ -7,6 +7,7 @@ import AudioListItem from "../../components/audiolistitem";
 import Screen from "../../components/screen";
 import OptionModal from "../../components/optionmodal";
 import { next, pause, play, resume } from "../../components/audiocontroller";
+import { storeAudioForNextOpening } from "../../components/helper";
 
 const cleanTitle = title => {
     return title.replace(/\.[^/.]+$/, "")
@@ -38,12 +39,37 @@ export class ListLagu extends Component {
         }
     );
 
-    onPlaybackStatusUpdate = (playbackStatus) => {
+    onPlaybackStatusUpdate = async (playbackStatus) => {
         if (playbackStatus.isLoaded && playbackStatus.isPlaying) {
             this.context.updateState(this.context, {
                 playbackPosition: playbackStatus.positionMillis,
                 playbackDuration: playbackStatus.durationMillis,
             })
+        }
+
+        if (playbackStatus.didJustFinish) {
+            const nextAudioIndex = this.context.currentAudioIndex + 1;
+            if (nextAudioIndex >= this.context.totalAudioCount) {
+                this.context.playback.unloadAsync();
+                this.context.updateState(this.context, {
+                    sound: null,
+                    currentAudio: this.context.audioFile[0],
+                    isPlaying: false,
+                    currentAudioIndex: 0,
+                    playbackDuration: null,
+                    playbackPosition: null
+                });
+                await storeAudioForNextOpening(this.context.audioFile[0], 0);
+            }
+            const audio = this.context.audioFile[nextAudioIndex];
+            const status = await next(this.context.playback, audio.uri)
+            this.context.updateState(this.context, {
+                sound: status,
+                currentAudio: audio,
+                isPlaying: true,
+                currentAudioIndex: nextAudioIndex
+            });
+            await storeAudioForNextOpening(audio, nextAudioIndex);
         }
     };
 
@@ -61,7 +87,8 @@ export class ListLagu extends Component {
                 isPlaying: true,
                 currentAudioIndex: index
             });
-            return playback.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate)
+            playback.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate)
+            return storeAudioForNextOpening(audio, index);
         }
 
         if (sound.isLoaded && sound.isPlaying && currentAudio.id === audio.id) {
@@ -83,13 +110,18 @@ export class ListLagu extends Component {
         if (sound.isLoaded && currentAudio.id !== audio.id) {
             const status = await next(playback, audio.uri)
             const index = audioFile.indexOf(audio)
-            return updateState(this.context, {
+            updateState(this.context, {
                 currentAudio: audio,
                 sound: status,
                 isPlaying: true,
                 currentAudioIndex: index
-            })
+            });
+            return storeAudioForNextOpening(audio, index);
         }
+    }
+
+    componentDidMount() {
+        this.context.loadPrevAudio();
     }
 
     rowRenderer = (type, item, index, extendedState) => {
@@ -112,6 +144,7 @@ export class ListLagu extends Component {
         return (
             <AudioContext.Consumer>
                 {({ dataProvider, isPlaying }) => {
+                    if (!dataProvider._data.length) return null;
                     return (
                         <Screen>
                             <RecyclerListView

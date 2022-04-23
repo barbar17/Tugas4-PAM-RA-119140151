@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
@@ -23,6 +23,12 @@ const Player = () => {
         }
         return 0;
     }
+
+    useEffect(() => {
+        context.loadPrevAudio();
+    }, [])
+
+    if (!context.currentAudio) return null;
 
     return (
         <Screen>
