@@ -5,6 +5,8 @@ import Slider from '@react-native-community/slider';
 import Screen from '../../components/screen';
 import PlayerButton from "../../components/playerbutton";
 import { AudioContext } from "../../components/audioprovider";
+import { next, pause, play, resume } from "../../components/audiocontroller";
+import { storeAudioForNextOpening } from "../../components/helper";
 
 const Player = () => {
     const context = useContext(AudioContext)
@@ -27,6 +29,114 @@ const Player = () => {
     useEffect(() => {
         context.loadPrevAudio();
     }, [])
+
+    const handlePlayPause = async () => {
+        if (context.sound === null) {
+            const audio = context.currentAudio;
+            const status = await play(context.playback, audio.uri);
+            context.playback.setOnPlaybackStatusUpdate(context.onPlaybackStatusUpdate);
+            return context.updateState(context, {
+                sound: status,
+                currentAudio: audio,
+                isPlaying: true,
+                currentAudioIndex: context.currentAudioIndex
+            })
+        }
+
+        if (context.sound && context.sound.isPlaying) {
+            const status = await pause(context.playback);
+            return context.updateState(context, {
+                sound: status,
+                isPlaying: false,
+            })
+        }
+
+        if (context.sound && !context.sound.isPlaying) {
+            const status = await resume(context.playback);
+            return context.updateState(context, {
+                sound: status,
+                isPlaying: true,
+            })
+        }
+    }
+
+    const handleNext = async () => {
+        const { isLoaded } = await context.playback.getStatusAsync();
+        const isLastAudio = context.currentAudioIndex + 1 === context.totalAudioCount;
+        let audio = context.audioFile[context.currentAudioIndex + 1];
+        let index;
+        let status;
+
+        if (!isLoaded && !isLastAudio) {
+            index = context.currentAudioIndex + 1;
+            status = await play(context.playback, audio.uri);
+        }
+
+        if (isLoaded && !isLastAudio) {
+            index = context.currentAudioIndex + 1;
+            status = await next(context.playback, audio.uri);
+        }
+
+        if (isLastAudio) {
+            index = 0;
+            audio = context.audioFile[index];
+            if (isLoaded) {
+                status = await next(context.playback, audio.uri);
+            } else {
+                status = await play(context.playback, audio.uri);
+            }
+        }
+
+        context.updateState(context, {
+            currentAudio: audio,
+            playback: context.playback,
+            sound: status,
+            isPlaying: true,
+            currentAudioIndex: index,
+            playbackPosition: null,
+            playbackDuration: null,
+        });
+        storeAudioForNextOpening(audio, index);
+    };
+
+    const handlePrev = async () => {
+        const { isLoaded } = await context.playback.getStatusAsync();
+        const isFirstAudio = context.currentAudioIndex <= 0;
+        let audio = context.audioFile[context.currentAudioIndex - 1];
+        let index;
+        let status;
+
+        if (!isLoaded && !isFirstAudio) {
+            index = context.currentAudioIndex - 1;
+            status = await play(context.playback, audio.uri);
+        }
+
+        if (isLoaded && !isFirstAudio) {
+            index = context.currentAudioIndex - 1;
+            status = await next(context.playback, audio.uri);
+        }
+
+        if (isFirstAudio) {
+            index = context.totalAudioCount - 1;
+            audio = context.audioFile[index];
+            if (isLoaded) {
+                status = await next(context.playback, audio.uri);
+            } else {
+                status = await play(context.playback, audio.uri);
+            }
+        }
+
+        context.updateState(context, {
+            currentAudio: audio,
+            playback: context.playback,
+            sound: status,
+            isPlaying: true,
+            currentAudioIndex: index,
+            playbackPosition: null,
+            playbackDuration: null,
+        });
+        storeAudioForNextOpening(audio, index);
+    };
 
     if (!context.currentAudio) return null;
 
@@ -55,12 +165,13 @@ const Player = () => {
                         maximumTrackTintColor={'#000000'}
                     />
                     <View style={styles.audioButtonContainer}>
-                        <PlayerButton iconType='PREV' />
+                        <PlayerButton onPress={handlePrev} iconType='PREV' />
                         <PlayerButton
+                            onPress={handlePlayPause}
                             size={60}
                             style={{ marginHorizontal: 40 }}
                             iconType={context.isPlaying ? 'PLAY' : 'PAUSE'} />
-                        <PlayerButton iconType='NEXT' />
+                        <PlayerButton onPress={handleNext} iconType='NEXT' />
                     </View>
                 </View>
             </View>
